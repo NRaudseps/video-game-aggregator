@@ -16,17 +16,16 @@ class MostAnticipated extends Component
         $afterFourMonths = Carbon::now()->addMonths(4)->timestamp;
         $current = Carbon::now()->timestamp;
 
-        $mostAnticipatedUnformatted = Http::withHeaders(config('services.igdb'))
+        $mostAnticipatedUnformatted = Http::withHeaders(config('services.igdb.headers'))
             ->withBody(
-                "fields name, cover.url, first_release_date, rating, rating_count, platforms.abbreviation, summary;
+                "fields name, cover.url, first_release_date, total_rating_count, rating, rating_count, platforms.abbreviation, summary;
                 where platforms = (48, 49, 130,6)
                 & ( first_release_date >= {$current}
                 & first_release_date < {$afterFourMonths});
-                where rating > 80;
-                sort rating desc;
-                limit 4;"
+                sort total_rating_count desc;
+                   limit 4;"
                 , 'text/plain')
-            ->post('https://api.igdb.com/v4/games')->json();
+            ->post(config('services.igdb.endpoint'))->json();
 
         $this->mostAnticipated = $this->formatForView($mostAnticipatedUnformatted);
     }
@@ -40,8 +39,10 @@ class MostAnticipated extends Component
     {
         return collect($games)->map(function ($game) {
             return collect($game)->merge([
-                'coverImageUrl' => Str::replaceFirst('thumb', 'cover_small', $game['cover']['url']),
-                'releaseDate' => Carbon::parse($game['first_release_date'])->format('M d, Y')
+                'coverImageUrl' => isset($game['cover']) ?
+                    Str::replaceFirst('thumb', 'cover_small', $game['cover']['url']) : null,
+                'releaseDate' => isset($game['first_release_date']) ?
+                    Carbon::parse($game['first_release_date'])->format('M d, Y') : null,
             ]);
         })->toArray();
     }

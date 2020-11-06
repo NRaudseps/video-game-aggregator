@@ -50,17 +50,17 @@
                         @endif
                         @if($game['social']['facebook'])
                             <div class="w-8 h-8 bg-gray-800 rounded-full flex justify-center items-center">
-                                <a href="{{ $game['social']['facebook'] }}" class="hover:text-gray-400">i</a>
+                                <a href="{{ $game['social']['facebook']['url'] }}" class="hover:text-gray-400">i</a>
                             </div>
                         @endif
                         @if($game['social']['twitter'])
                             <div class="w-8 h-8 bg-gray-800 rounded-full flex justify-center items-center">
-                                <a href="{{ $game['social']['twitter'] }}" class="hover:text-gray-400">t</a>
+                                <a href="{{ $game['social']['twitter']['url'] }}" class="hover:text-gray-400">t</a>
                             </div>
                         @endif
                         @if($game['social']['instagram'])
                             <div class="w-8 h-8 bg-gray-800 rounded-full flex justify-center items-center">
-                                <a href="{{ $game['social']['instagram'] }}" class="hover:text-gray-400">f</a>
+                                <a href="{{ $game['social']['instagram']['url'] }}" class="hover:text-gray-400">f</a>
                             </div>
                         @endif
                     </div>
@@ -79,7 +79,7 @@
                     <template x-if="isTrailerModalVisible">
                         <div
                             style="background-color: rgba(0, 0, 0, .5)"
-                            class="fixed top-0 left-0 w-full h-full flex items-center shadow-lg overflow-y-auto">
+                            class="z-50 fixed top-0 left-0 w-full h-full flex items-center shadow-lg overflow-y-auto">
                             <div class="container mx-auto lg:px-32 rounded-lg overflow-y-auto">
                                 <div class="bg-gray-900 rounded">
                                     <div class="flex justify-end pr-4 pt-2">
@@ -126,7 +126,7 @@
             <template x-if="isImageModalVisible">
                 <div
                     style="background-color: rgba(0, 0, 0, .5)"
-                    class="fixed top-0 left-0 w-full h-full flex items-center shadow-lg overflow-y-auto">
+                    class="z-50 fixed top-0 left-0 w-full h-full flex items-center shadow-lg overflow-y-auto">
                     <div class="container mx-auto lg:px-32 rounded-lg overflow-y-auto">
                         <div class="bg-gray-900 rounded">
                             <div class="flex justify-end pr-4 pt-2">

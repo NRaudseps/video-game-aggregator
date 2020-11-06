@@ -48,20 +48,19 @@ class GamesController extends Controller
      */
     public function show($slug)
     {
-        $game = Http::withHeaders(config('services.igdb'))
+        $game = Http::withHeaders(config('services.igdb.headers'))
             ->withBody(
                 "fields name, cover.url, genres.name, involved_companies.company.name, platforms.abbreviation,
                 rating, aggregated_rating, summary, videos.*, screenshots.*, similar_games.name, similar_games.url,
                 similar_games.cover.url, similar_games.rating, similar_games.slug, websites.*;
                     where slug=\"{$slug}\";"
                 , 'text/plain')
-            ->post('https://api.igdb.com/v4/games')
+            ->post(config('services.igdb.endpoint'))
             ->json();
+
         abort_if(!$game, 404);
-//        "fields name, cover.url, first_release_date, popularity, platfroms.abbreviation, rating,
-//                slug, involved_companies.company.name, genres.name, aggregated_rating, summary, websites.*
-//                videos.*, screenshots.*, similar_games.cover.url, similar_games.name, similar_games.rating,
-//                similar_games.platforms, abbreviation, similar_games.slug;
+
+//        dd($this->formatGameForView($game[0]));
 
         return view('show', [
             'game' => $this->formatGameForView($game[0])
@@ -72,7 +71,8 @@ class GamesController extends Controller
     {
         return collect($game)->merge([
             'coverImageUrl' => Str::replaceFirst('thumb', 'cover_big', $game['cover']['url']),
-            'genres' => collect($game['genres'])->pluck('name')->implode(', '),
+            'genres' => isset($game['genres']) ?
+                collect($game['genres'])->pluck('name')->implode(', ') : null,
             'involved_companies' => $game['involved_companies'][0]['company']['name'],
             'platforms' => collect($game['platforms'])->pluck('abbreviation')->implode(', '),
             'memberRating' => array_key_exists('rating', $game) ? round($game['rating']) : '0',

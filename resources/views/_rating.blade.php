@@ -1,4 +1,6 @@
+
 <script>
+
     @if($event) Livewire.on('{{ $event }}', params => { @endif
 
     @if($event)
@@ -8,6 +10,7 @@
     @endif
 
 
+    console.log(progressBarContainer);
     var bar = new ProgressBar.Circle(progressBarContainer, {
         color: 'white',
         // This has to be the same size as the maximum width to
@@ -40,8 +43,7 @@
     @if($event)
         bar.animate(params.rating);
     @else
-        bar.animate({{ $rating / 100 }});
+        bar.animate({{ $rating }} / 100);
     @endif
-
     @if ($event) }) @endif
 </script>

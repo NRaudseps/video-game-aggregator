@@ -16,17 +16,18 @@ class RecentlyReviewed extends Component
         $before = Carbon::now()->subMonths(2)->timestamp;
         $current = Carbon::now()->timestamp;
 
-        $recentlyReviewedUnformatted = Http::withHeaders(config('services.igdb'))
+        $recentlyReviewedUnformatted = Http::withHeaders(config('services.igdb.headers'))
             ->withBody(
-                "fields name, cover.url, first_release_date, rating, rating_count, platforms.abbreviation, summary, slug;
+                "fields name, cover.url, first_release_date, rating, rating_count,
+                total_rating_count, platforms.abbreviation, summary, slug;
                 where platforms = (48, 49, 130,6)
                 & ( first_release_date >= {$before}
                 & first_release_date < {$current}
                 & rating_count > 5);
-                where rating > 80;
+                sort total_rating_count desc;
                 limit 3;"
                 , 'text/plain')
-            ->post('https://api.igdb.com/v4/games')->json();
+            ->post(config('services.igdb.endpoint'))->json();
 
         $this->recentlyReviewed = $this->formatForView($recentlyReviewedUnformatted);
 
@@ -49,9 +50,11 @@ class RecentlyReviewed extends Component
     {
         return collect($games)->map(function ($game) {
            return collect($game)->merge([
-               'coverImageUrl' => Str::replaceFirst('thumb', 'cover_big', $game['cover']['url']),
+               'coverImageUrl' => isset($game['cover']) ?
+                   Str::replaceFirst('thumb', 'cover_big', $game['cover']['url']) : null,
                'rating' => isset($game['rating']) ? round($game['rating']) : null,
-               'platforms' => collect($game['platforms'])->pluck('abbreviation')->implode(', ')
+               'platforms' => isset($game['platforms']) ?
+                   collect($game['platforms'])->pluck('abbreviation')->implode(', ') : [],
            ]);
         });
     }
